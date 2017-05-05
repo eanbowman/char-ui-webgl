@@ -9,18 +9,21 @@ public class DialogueSystem : MonoBehaviour {
     public string npcName;
     public GameObject dialoguePanel;
 
-    Button continueButton;
-    Text dialogueText, nameText;
+	Button nextButton, previousButton;
+    Text dialogueText;
     int dialogueIndex;
 
     void Awake() {
-        continueButton = dialoguePanel.transform.FindChild("Continue").GetComponent<Button>();
-        dialogueText = dialoguePanel.transform.FindChild("Text").GetComponent<Text>();
-        nameText = dialoguePanel.transform.FindChild("Name").GetChild(0).GetComponent<Text>();
+		nextButton = dialoguePanel.transform.FindChild("Next").GetComponent<Button>();
+		previousButton = dialoguePanel.transform.FindChild("Previous").GetComponent<Button>();
+		dialogueText = dialoguePanel.transform.FindChild("Dialogue").GetComponent<Text>();
+        
+		nextButton.onClick.AddListener(delegate { nextDialogue(); });
+		previousButton.onClick.AddListener(delegate { previousDialogue(); });
 
-        continueButton.onClick.AddListener(delegate { ContinueDialogue(); });
+		previousButton.gameObject.SetActive (false);
 
-        dialoguePanel.SetActive(false);
+		dialogueText.text = dialogueLines[0];
 
         if (Instance != null && Instance != this)
         {
@@ -46,21 +49,48 @@ public class DialogueSystem : MonoBehaviour {
     public void CreateDialogue()
     {
         dialogueText.text = dialogueLines[dialogueIndex];
-        nameText.text = npcName;
         dialoguePanel.SetActive(true);
-    }
+	}
 
-    public void ContinueDialogue()
-    {
-        if (dialogueIndex < dialogueLines.Count - 1)
-        {
-            dialogueIndex++;
-            dialogueText.text = dialogueLines[dialogueIndex];
-        }
-        else
-        {
-            dialoguePanel.SetActive(false);
-        }
+	public void nextDialogue()
+	{
+		if (dialogueIndex < dialogueLines.Count - 1)
+		{
+			dialogueIndex++;
+			dialogueText.text = dialogueLines[dialogueIndex];
+			if (dialogueIndex == dialogueLines.Count - 1) {
+				Debug.Log ("Panel is the last one");
+				nextButton.gameObject.SetActive (false);
+			} else {
+				nextButton.gameObject.SetActive (true);
+				previousButton.gameObject.SetActive (true);
+			}
+		}
+		else
+		{
+			dialoguePanel.SetActive(false);
+		}
+		Debug.Log (dialogueIndex + " " + dialogueLines.Count);
+	}
 
-    }
+	public void previousDialogue()
+	{
+		if (dialogueIndex > 0)
+		{
+			dialogueIndex--;
+			dialogueText.text = dialogueLines[dialogueIndex];
+			if (dialogueIndex == 0) {
+				Debug.Log ("Panel is the first one");
+				previousButton.gameObject.SetActive (false);
+			} else {
+				nextButton.gameObject.SetActive (true);
+				previousButton.gameObject.SetActive (true);
+			}
+		}
+		else
+		{
+			dialoguePanel.SetActive(false);
+		}
+		Debug.Log (dialogueIndex + " " + dialogueLines.Count);
+	}
 }
